@@ -1,0 +1,26 @@
+{
+  "name": "أذان اللحيدان - مواقيت الصلاة بالمغرب",
+  "short_name": "أذان اللحيدان",
+  "description": "تطبيق مواقيت الصلاة بالمغرب بأذان الشيخ محمد اللحيدان",
+  "start_url": "/adan-alahidan/",
+  "scope": "/adan-alahidan/",
+  "display": "standalone",
+  "background_color": "#022c22",
+  "theme_color": "#064e3b",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "/adan-alahidan/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/adan-alahidan/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
