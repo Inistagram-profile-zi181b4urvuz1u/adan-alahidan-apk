@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 
 class AdhanService : Service() {
     private var mediaPlayer: MediaPlayer? = null
+    private var previousVolume: Int = -1
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == "STOP_ADHAN") {
@@ -45,6 +46,14 @@ class AdhanService : Service() {
 
         startForeground(101, notification)
 
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        if (previousVolume == -1) {
+            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        }
+        val targetVol = (maxVol * 0.90).toInt().coerceAtLeast(1)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+
         mediaPlayer?.release()
         mediaPlayer = MediaPlayer.create(this, R.raw.adhan_luhaidan)?.apply {
             setOnCompletionListener { stopSelf() }
@@ -70,6 +79,11 @@ class AdhanService : Service() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
         mediaPlayer = null
+        if (previousVolume != -1) {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
+            previousVolume = -1
+        }
         super.onDestroy()
     }
 
