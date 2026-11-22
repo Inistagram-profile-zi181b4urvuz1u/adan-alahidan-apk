@@ -130,9 +130,9 @@ class MainActivity : AppCompatActivity() {
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            val showIntent = Intent(this@MainActivity, MainActivity::class.java)
+                            val showIntent = Intent(this, MainActivity::class.java)
                             val showPending = PendingIntent.getActivity(
-                                this@MainActivity,
+                                this,
                                 0,
                                 showIntent,
                                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
