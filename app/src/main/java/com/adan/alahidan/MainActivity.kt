@@ -129,10 +129,16 @@ class MainActivity : AppCompatActivity() {
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            alarmManager.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                triggerAtMillis,
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            val showIntent = Intent(this@MainActivity, MainActivity::class.java)
+                            val showPending = PendingIntent.getActivity(
+                                this@MainActivity,
+                                0,
+                                showIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
+                            alarmManager.setAlarmClock(
+                                AlarmManager.AlarmClockInfo(triggerAtMillis, showPending),
                                 pendingIntent
                             )
                         } else {

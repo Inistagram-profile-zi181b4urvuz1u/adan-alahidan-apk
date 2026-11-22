@@ -72,15 +72,25 @@ class AdhanService : Service() {
             audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
         }
 
-        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
         if (previousVolume == -1) {
-            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
         }
         val targetVol = (maxVol * 0.90).toInt().coerceAtLeast(1)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetVol, 0)
 
         mediaPlayer?.release()
-        mediaPlayer = MediaPlayer.create(this, R.raw.adhan_luhaidan)?.apply {
+        val afd = resources.openRawResourceFd(R.raw.adhan_luhaidan)
+        mediaPlayer = MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            afd.close()
+            prepare()
             setOnCompletionListener { stopSelf() }
             start()
         }
@@ -112,7 +122,7 @@ class AdhanService : Service() {
             audioManager.abandonAudioFocus(null)
         }
         if (previousVolume != -1) {
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, previousVolume, 0)
             previousVolume = -1
         }
         super.onDestroy()
