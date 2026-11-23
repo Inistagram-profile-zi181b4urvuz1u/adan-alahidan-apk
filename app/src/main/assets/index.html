@@ -20,6 +20,14 @@
   <body class="antialiased">
     <div id="root"></div>
     <script>
+      window.addEventListener('error', function(e) {
+        var r = document.getElementById('root');
+        if (r && !r.innerHTML) {
+          r.innerHTML = '<div style="padding:20px;direction:ltr;color:red;font-family:monospace;">JS Error: ' + (e.message || e.error) + '</div>';
+        }
+      });
+    </script>
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').catch(() => {});
