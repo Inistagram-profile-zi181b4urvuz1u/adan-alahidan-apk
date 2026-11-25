@@ -17,7 +17,11 @@ import android.webkit.GeolocationPermissions
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.webkit.WebViewAssetLoader
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -59,7 +63,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        webView.loadUrl("file:///android_asset/index.html")
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this))
+            .build()
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldInterceptRequest(
+                view: WebView,
+                request: WebResourceRequest
+            ): WebResourceResponse? {
+                return assetLoader.shouldInterceptRequest(request.url)
+            }
+        }
+
+        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
     }
 
     private fun requestPermissionsIfNeeded() {
