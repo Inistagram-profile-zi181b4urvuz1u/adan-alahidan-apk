@@ -178,18 +178,20 @@ object PrayerRepository {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val showIntent = Intent(context, MainActivity::class.java)
-                val showPending = PendingIntent.getActivity(
-                    context, 0, showIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                alarmManager.setAlarmClock(
-                    AlarmManager.AlarmClockInfo(cal.timeInMillis, showPending),
-                    pendingIntent
-                )
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
-            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    val showIntent = Intent(context, MainActivity::class.java)
+                    val showPending = PendingIntent.getActivity(
+                        context, 0, showIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                    alarmManager.setAlarmClock(
+                        AlarmManager.AlarmClockInfo(cal.timeInMillis, showPending),
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pendingIntent)
+                }
+            } catch (_: Exception) {}
         }
     }
 }

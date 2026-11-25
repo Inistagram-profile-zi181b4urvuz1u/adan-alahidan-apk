@@ -498,16 +498,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         }
 
-        // Player bar
-        val playerBar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+        // Player bar with SeekBar
+        val playerBox = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             background = roundedBg(greenColor, 14)
             setPadding(dp(12), dp(10), dp(12), dp(10))
-            gravity = Gravity.CENTER_VERTICAL
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply { bottomMargin = dp(10) }
+        }
+        val playerBar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
         }
         val nowPlayingTv = TextView(this).apply {
             text = if (playingTitle.isEmpty()) "اختر تلاوة أو سورة" else playingTitle
@@ -516,10 +519,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             setTypeface(null, Typeface.BOLD)
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
         }
+        val timeTv = TextView(this).apply {
+            text = "00:00 / 00:00"
+            setTextColor(goldColor)
+            textSize = 11f
+            setPadding(dp(8), 0, dp(8), 0)
+        }
         val playPauseBtn = TextView(this).apply {
             text = if (isAudioPlaying) "⏸️" else "▶️"
             textSize = 20f
-            setPadding(dp(10), dp(4), dp(4), dp(4))
+            setPadding(dp(6), dp(4), dp(4), dp(4))
             setOnClickListener {
                 mediaPlayer?.let { mp ->
                     if (mp.isPlaying) {
@@ -535,7 +544,41 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
         playerBar.addView(nowPlayingTv)
+        playerBar.addView(timeTv)
         playerBar.addView(playPauseBtn)
+
+        val seekBar = SeekBar(this).apply {
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        mediaPlayer?.seekTo(progress)
+                    }
+                }
+                override fun onStartTrackingTouch(sb: SeekBar?) {}
+                override fun onStopTrackingTouch(sb: SeekBar?) {}
+            })
+        }
+        playerBox.addView(playerBar)
+        playerBox.addView(seekBar)
+
+        handler.post(object : Runnable {
+            override fun run() {
+                if (currentTab == 2) {
+                    mediaPlayer?.let { mp ->
+                        try {
+                            if (mp.duration > 0) {
+                                seekBar.max = mp.duration
+                                seekBar.progress = mp.currentPosition
+                                val curS = mp.currentPosition / 1000
+                                val totS = mp.duration / 1000
+                                timeTv.text = String.format("%02d:%02d / %02d:%02d", curS / 60, curS % 60, totS / 60, totS % 60)
+                            }
+                        } catch (_: Exception) {}
+                    }
+                    handler.postDelayed(this, 500)
+                }
+            }
+        })
 
         fun renderSub() {
             subContainer.removeAllViews()
@@ -671,7 +714,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
 
         col.addView(subBar)
-        col.addView(playerBar)
+        col.addView(playerBox)
         col.addView(subContainer)
         contentContainer.addView(col)
         renderSub()
