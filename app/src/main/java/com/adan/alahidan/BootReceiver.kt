@@ -6,8 +6,10 @@ import android.content.Intent
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val prefs = context.getSharedPreferences("adan_prefs", Context.MODE_PRIVATE)
-        val json = prefs.getString("alarms_json", null) ?: return
-        MainActivity.AndroidBridge.scheduleFromJson(context, json)
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            val city = PrayerRepository.getSelectedCity(context)
+            val day = PrayerRepository.getCachedOrFallback(context, city)
+            PrayerRepository.scheduleAlarms(context, day)
+        }
     }
 }
